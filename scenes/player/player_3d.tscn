@@ -1,0 +1,158 @@
+[gd_scene load_steps=12 format=3 uid="uid://cakecqog8dqn"]
+
+[ext_resource type="Script" path="res://lib/scenes/player/PlayerFirstPerson3D.cs" id="1_h1vvw"]
+[ext_resource type="PackedScene" uid="uid://cu31o2lgiw2yb" path="res://lib/components/interactor/interactor_component_3d.tscn" id="2_ji2a7"]
+[ext_resource type="PackedScene" uid="uid://c5fm3whbnxxs6" path="res://lib/components/hitscan/hitscan_component.tscn" id="2_p1kdx"]
+[ext_resource type="PackedScene" uid="uid://bm1ug8bdeqtio" path="res://lib/scenes/weapons/gun_3d.tscn" id="3_1tya2"]
+[ext_resource type="PackedScene" uid="uid://is571xafpyf4" path="res://lib/scenes/weapons/weapon_manager_3d.tscn" id="4_gjgen"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_020m8"]
+radius = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h8tjr"]
+albedo_color = Color(0.494118, 0.494118, 0.494118, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_m0h6x"]
+material = SubResource("StandardMaterial3D_h8tjr")
+radius = 0.4
+
+[sub_resource type="Animation" id="Animation_gxc5g"]
+resource_name = "Crouch"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1, 1, 1), Vector3(1, 0.5, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(0, 0.5, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PlayerWorldCamera:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.56, 0), Vector3(0, 0.78, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_cem0p"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PlayerWorldCamera:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.56, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tfppt"]
+_data = {
+"Crouch": SubResource("Animation_gxc5g"),
+"RESET": SubResource("Animation_cem0p")
+}
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("WorldCamera", "FpsLayerCamera", "AnimPlayer")]
+script = ExtResource("1_h1vvw")
+WorldCamera = NodePath("PlayerWorldCamera")
+FpsLayerCamera = NodePath("PlayerWorldCamera/FirstPersonViewportContainer/FirstPersonViewport/FirstPersonLayerCamera")
+AnimPlayer = NodePath("PlayerAnimationPlayer")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_020m8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+mesh = SubResource("CapsuleMesh_m0h6x")
+skeleton = NodePath("../..")
+
+[node name="PlayerWorldCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.56, 0)
+cull_mask = 1048559
+current = true
+fov = 90.0
+
+[node name="HitscanComponent" parent="PlayerWorldCamera" instance=ExtResource("2_p1kdx")]
+target_position = Vector3(0, 0, -1)
+collision_mask = 4
+
+[node name="InteractorComponent" parent="PlayerWorldCamera" instance=ExtResource("2_ji2a7")]
+
+[node name="FirstPersonViewportContainer" type="SubViewportContainer" parent="PlayerWorldCamera"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="FirstPersonViewport" type="SubViewport" parent="PlayerWorldCamera/FirstPersonViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="FirstPersonLayerCamera" type="Camera3D" parent="PlayerWorldCamera/FirstPersonViewportContainer/FirstPersonViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.56, 0)
+cull_mask = 16
+fov = 90.0
+
+[node name="WeaponManager" parent="PlayerWorldCamera/FirstPersonViewportContainer/FirstPersonViewport/FirstPersonLayerCamera" node_paths=PackedStringArray("hitscanRay") instance=ExtResource("4_gjgen")]
+hitscanRay = NodePath("../../../../HitscanComponent")
+
+[node name="Gun" parent="PlayerWorldCamera/FirstPersonViewportContainer/FirstPersonViewport/FirstPersonLayerCamera/WeaponManager" instance=ExtResource("3_1tya2")]
+transform = Transform3D(1, 0, 0, 0, 0.996195, -0.0871557, 0, 0.0871557, 0.996195, 0.4, -0.25, -0.4)
+
+[node name="PlayerAnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_tfppt")
+}

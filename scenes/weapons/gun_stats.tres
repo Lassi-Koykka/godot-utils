@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://bpkpy7wmkqwkl"]
+
+[ext_resource type="Script" path="res://lib/scenes/weapons/WeaponStats.cs" id="1_uy5tk"]
+
+[resource]
+script = ExtResource("1_uy5tk")
+Damage = 1
+range = 1000
+magazineSize = 1
+reserveAmmoMax = 1
+shotCooldown = 0.5
+reloadTime = 1.0
+horizontalSway = 0.0
+verticalSway = 0.0
+horizontalRecoil = 0.0
+verticalRecoil = 0.0

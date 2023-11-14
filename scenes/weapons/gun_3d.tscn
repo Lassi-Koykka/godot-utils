@@ -1,0 +1,160 @@
+[gd_scene load_steps=17 format=3 uid="uid://bm1ug8bdeqtio"]
+
+[ext_resource type="Script" path="res://lib/scenes/weapons/Weapon.cs" id="1_srgti"]
+[ext_resource type="Resource" uid="uid://bpkpy7wmkqwkl" path="res://lib/scenes/weapons/gun_stats.tres" id="2_prd38"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_dxwyp"]
+frequency = 0.05
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_w8dis"]
+noise = SubResource("FastNoiseLite_dxwyp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jqeqx"]
+albedo_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
+metallic = 0.5
+roughness_texture = SubResource("NoiseTexture2D_w8dis")
+uv1_scale = Vector3(1, 10, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3evui"]
+material = SubResource("StandardMaterial3D_jqeqx")
+top_radius = 0.03
+bottom_radius = 0.03
+height = 0.75
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_qp78v"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nehsk"]
+noise = SubResource("FastNoiseLite_qp78v")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_nkdkj"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_l87ro"]
+invert = true
+as_normal_map = true
+noise = SubResource("FastNoiseLite_nkdkj")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dlc1e"]
+albedo_color = Color(0.239216, 0.160784, 0.0862745, 1)
+albedo_texture = SubResource("NoiseTexture2D_nehsk")
+metallic_specular = 0.12
+roughness_texture = SubResource("NoiseTexture2D_l87ro")
+uv1_scale = Vector3(2, 2, 2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ptjs6"]
+material = SubResource("StandardMaterial3D_dlc1e")
+size = Vector3(0.1, 0.4, 0.1)
+
+[sub_resource type="Animation" id="Animation_tyw3b"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Meshes:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Meshes:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_rrqi7"]
+resource_name = "idle"
+length = 3.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Meshes:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.5, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, -0.02, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Meshes:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.5, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-0.0872665, 0, 0), Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_gcvbg"]
+resource_name = "shoot"
+length = 0.125
+step = 0.025
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Meshes:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.025, 0.125),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 0.015), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Meshes:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.025, 0.05, 0.075, 0.125),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0.0523599, 0, 0), Vector3(0.0436332, 0, 0), Vector3(0, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3k4y7"]
+_data = {
+"RESET": SubResource("Animation_tyw3b"),
+"idle": SubResource("Animation_rrqi7"),
+"shoot": SubResource("Animation_gcvbg")
+}
+
+[node name="Gun" type="Node3D"]
+script = ExtResource("1_srgti")
+stats = ExtResource("2_prd38")
+
+[node name="Meshes" type="Node3D" parent="."]
+
+[node name="Barrel" type="MeshInstance3D" parent="Meshes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+layers = 16
+mesh = SubResource("CylinderMesh_3evui")
+skeleton = NodePath("../..")
+
+[node name="Stock" type="MeshInstance3D" parent="Meshes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, -0.052, 0.16)
+layers = 16
+mesh = SubResource("BoxMesh_ptjs6")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_3k4y7")
+}
+blend_times = [&"idle", &"RESET", 0.02, &"idle", &"shoot", 0.02, &"shoot", &"RESET", 0.02, &"shoot", &"idle", 0.02]

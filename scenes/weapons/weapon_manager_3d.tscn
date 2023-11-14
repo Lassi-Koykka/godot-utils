@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://is571xafpyf4"]
+
+[ext_resource type="Script" path="res://lib/scenes/weapons/WeaponManager3D.cs" id="1_qliy5"]
+
+[node name="WeaponManager" type="Node3D"]
+script = ExtResource("1_qliy5")

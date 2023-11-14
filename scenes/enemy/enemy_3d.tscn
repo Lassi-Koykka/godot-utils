@@ -1,0 +1,115 @@
+[gd_scene load_steps=14 format=3 uid="uid://l6nqtqm3lgl5"]
+
+[ext_resource type="Script" path="res://lib/scenes/enemy/Enemy3D.cs" id="1_ky8vk"]
+[ext_resource type="PackedScene" path="res://lib/components/state_machine/state_machine.tscn" id="2_mwomq"]
+[ext_resource type="Script" path="res://lib/scenes/enemy/states/Enemy3DAlive.cs" id="3_dtm5b"]
+[ext_resource type="Script" path="res://lib/scenes/enemy/states/Enemy3DDead.cs" id="4_67e6b"]
+[ext_resource type="PackedScene" uid="uid://c7rwsteccj0jc" path="res://lib/components/health/health_component.tscn" id="5_ev4iu"]
+[ext_resource type="PackedScene" uid="uid://bjx68idwd7nh1" path="res://lib/components/hurtbox/hurtbox_component_3d.tscn" id="7_s38j4"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_evfk5"]
+radius = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ylbg1"]
+albedo_color = Color(1, 0.337255, 0.337255, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_r8tlp"]
+material = SubResource("StandardMaterial3D_ylbg1")
+radius = 0.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vmjeg"]
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.2
+
+[sub_resource type="Animation" id="Animation_kudmi"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_hg6mu"]
+resource_name = "death"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-1.5708, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tellx"]
+_data = {
+"RESET": SubResource("Animation_kudmi"),
+"death": SubResource("Animation_hg6mu")
+}
+
+[node name="Enemy" type="CharacterBody3D"]
+script = ExtResource("1_ky8vk")
+Speed = 2.0
+stateMachine = Object(Node,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","script":Resource("res://lib/components/state_machine/StateMachine.cs"))
+
+animationPlayer = Object(AnimationPlayer,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","root_node":NodePath(".."),"autoplay":"","reset_on_save":true,"playback_process_mode":1,"playback_default_blend_time":0.0,"speed_scale":1.0,"method_call_mode":0,"audio_max_polyphony":32,"movie_quit_on_finish":false,"libraries":{
+"": SubResource("AnimationLibrary_tellx")
+},"blend_times":[],"script":null)
+
+healthComponent = Object(Node,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","script":Resource("res://lib/components/health/HealthComponent.cs"),"Health":1,"MaxHealth":1)
+
+hurtboxComponent = Object(Area3D,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","transform":Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),"rotation_edit_mode":0,"rotation_order":2,"top_level":false,"visible":true,"visibility_parent":NodePath(""),"disable_mode":0,"collision_layer":4,"collision_mask":4,"collision_priority":1.0,"input_ray_pickable":true,"input_capture_on_drag":false,"monitoring":true,"monitorable":true,"priority":0,"gravity_space_override":0,"gravity_point":false,"gravity_point_unit_distance":0.0,"gravity_point_center":Vector3(0, -1, 0),"gravity_direction":Vector3(0, -1, 0),"gravity":9.8,"linear_damp_space_override":0,"linear_damp":0.1,"angular_damp_space_override":0,"angular_damp":0.1,"wind_force_magnitude":0.0,"wind_attenuation_factor":0.0,"wind_source_path":NodePath(""),"audio_bus_override":false,"audio_bus_name":&"Master","reverb_bus_enabled":false,"reverb_bus_name":&"Master","reverb_bus_amount":0.0,"reverb_bus_uniformity":0.0,"script":Resource("res://lib/components/hurtbox/HurtboxComponent3D.cs"),"healthComponent":Object(Node,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","script":Resource("res://lib/components/health/HealthComponent.cs"),"Health":1,"MaxHealth":1)
+)
+
+
+[node name="StateMachine" parent="." instance=ExtResource("2_mwomq")]
+
+[node name="Alive" type="Node" parent="StateMachine"]
+script = ExtResource("3_dtm5b")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("4_67e6b")
+
+[node name="HealthComponent" parent="." instance=ExtResource("5_ev4iu")]
+Health = 1
+MaxHealth = 1
+
+[node name="HurtboxComponent3D" parent="." instance=ExtResource("7_s38j4")]
+collision_layer = 4
+collision_mask = 4
+healthComponent = Object(Node,"_import_path":NodePath(""),"unique_name_in_owner":false,"process_mode":0,"process_priority":0,"process_physics_priority":0,"process_thread_group":0,"editor_description":"","script":Resource("res://lib/components/health/HealthComponent.cs"),"Health":1,"MaxHealth":1)
+
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtboxComponent3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_evfk5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_evfk5")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="CollisionShape3D"]
+mesh = SubResource("CapsuleMesh_r8tlp")
+skeleton = NodePath("../../..")
+
+[node name="FaceMesh" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00880122, 0.466469, 0.253381)
+mesh = SubResource("CylinderMesh_vmjeg")
+skeleton = NodePath("../../..")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_tellx")
+}
