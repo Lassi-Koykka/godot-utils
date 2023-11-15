@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://c5fm3whbnxxs6"]
-
-[ext_resource type="Script" path="res://lib/components/hitscan/HitscanComponent.cs" id="1_51d0f"]
-
-[node name="HitscanComponent" type="RayCast3D"]
-target_position = Vector3(0, 0, -100)
-collide_with_areas = true
-collide_with_bodies = false
-script = ExtResource("1_51d0f")

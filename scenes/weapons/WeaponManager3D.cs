@@ -3,7 +3,7 @@ using Godot;
 public partial class WeaponManager3D : Node3D
 {
 	[Export]
-	public HitscanComponent hitscanRay {get; private set;}
+	public HitscanComponent3D hitscanRay {get; private set;}
 	// Called when the node enters the scene tree for the first time.
 
 	private Godot.Collections.Array<Weapon> weapons = new Godot.Collections.Array<Weapon>();
