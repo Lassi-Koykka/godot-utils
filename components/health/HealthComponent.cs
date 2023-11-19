@@ -4,13 +4,13 @@ public partial class HealthComponent : Node
 {
     // Declare member variables here. Examples:
     [Export]
-    public int Health { get; private set; } = 100;
+    public int health { get; private set; } = 100;
 
     [Export]
-    public int MaxHealth { get; private set; } = 100;
+    public int maxHealth { get; private set; } = 100;
 
     [Export]
-    public float ImmunityTime {get; private set; } = 0.5f;
+    public Timer immunityTimer {get; private set; }
 
     [Signal]
     public delegate void HealthChangedEventHandler(int amount);
@@ -20,51 +20,56 @@ public partial class HealthComponent : Node
 
     public bool Enabled = true;
 
+    public override void _Ready()
+    {
+        if(immunityTimer != null)
+            immunityTimer.Timeout += () => Enabled = true;
+    }
+
     public void UpdateHealth(int amount)
     {
 
         if(!Enabled) {
-            GD.Print("Immune");
             return;
         }
 
-        GD.Print("Updating health:" + amount);
+        var newHealth = health + amount;
 
-        if(amount < 0)
-            Damage(-amount);
-        else if(amount > 0)
-            Heal(amount);
+        if(amount < 0) {
+            health = newHealth < 0 ? 0 : newHealth;
+            if(health <= 0) {
+                EmitSignal(SignalName.Died);
+            }
+        }
+        else if(amount > 0) {
+            health = newHealth > maxHealth ? maxHealth : newHealth;
+        }
 
-        Enabled = false;
-        if(!IsDead()) {
-            var timer = GetTree().CreateTimer(ImmunityTime);
-            timer.Timeout += () => Enabled = true;
+        if(immunityTimer != null) {
+            Enabled = false;
+            if(!IsDead()) {
+                immunityTimer.Start();
+            }
+
         }
         EmitSignal(SignalName.HealthChanged, amount);
     }
 
     public void Heal(int amount) 
     {
-        var newHealth = Health + amount;
-        Health = newHealth > MaxHealth ? MaxHealth : newHealth;
-        EmitSignal(SignalName.HealthChanged, amount);
+        UpdateHealth(amount);
+    }
+
+    public void Damage(int amount) {
+        UpdateHealth(-amount);
     }
 
     public void HealToMax() 
     {
-        Heal(MaxHealth);
-    }
-
-    public void Damage(int amount) {
-        var newHealth = Health - amount;
-        Health = newHealth < 0 ? 0 : newHealth;
-        EmitSignal(SignalName.HealthChanged, amount);
-        if(Health <= 0) {
-            EmitSignal(SignalName.Died);
-        }
+        Heal(maxHealth);
     }
 
     public bool IsDead() {
-        return Health <= 0;
+        return health <= 0;
     }
 }
