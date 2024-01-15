@@ -1,19 +1,18 @@
 using Godot;
 
-public partial class PlayerFpsControllerNew : CharacterBody3D
+public partial class PlayerFpsController : CharacterBody3D
 {
-    [Export] public Node3D Cam { get; set; }
-    [Export] Node3D ItemHolder;
+    [Export] public Node3D Head { get; set; }
+    [Export] Node3D Arms;
     [Export] CollisionShape3D collShape;
 
     // Mouse look
     [ExportGroup("Mouse Settings")]
     [Export(PropertyHint.Range, "0,10,1,")]
-    public float MouseSensitivity = 1;
+    public float MouseSensitivity = ProjectSettings.GetSetting("player/look_sensitivity", 0.0f).As<float>();
 
     [Export(PropertyHint.Range, "0,90,1,")]
     public float CameraMaxAngle { get; private set; } = 75;
-    const float MouseScale = 0.001f;
     Vector2 InputDir, MouseInput = new Vector2();
 
     // Physics
@@ -26,10 +25,10 @@ public partial class PlayerFpsControllerNew : CharacterBody3D
     [ExportGroup("Juice")]
     [Export] float BobAmount = 0.01f;
     [Export] float BobFreq = 0.01f;
-    [Export] float CamHolderRotationAmount = 0.04f;
-    [Export] float ItemSwayAmount = 0.01f;
-    [Export] float ItemHolderRotationAmount = 0.04f;
-    Vector3 DefaultItemHolderPos, DefaultCamHolderPos = Vector3.Zero;
+    [Export] float HeadRotationAmount = 0.04f;
+    [Export] float ArmsSwayAmount = 0.01f;
+    [Export] float ArmsRotationAmount = 0.04f;
+    Vector3 DefaultItemHolderPos, DefaultHeadPos = Vector3.Zero;
 
     // Other
     [ExportGroup("Other settings")]
@@ -37,23 +36,25 @@ public partial class PlayerFpsControllerNew : CharacterBody3D
 
     float defaultHeight = 0.0f;
     Tween crouchTween = null;
-    CapsuleShape3D capsule;
+    CylinderShape3D shape;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        capsule = collShape.Shape as CapsuleShape3D;
-        defaultHeight = capsule.Height;
-        DefaultCamHolderPos = Cam.Position;
-        DefaultItemHolderPos = ItemHolder.Position;
+        // Input.MouseMode = Input.MouseModeEnum.Captured;
+        shape = collShape.Shape as CylinderShape3D;
+        defaultHeight = shape.Height;
+        DefaultHeadPos = Head.Position;
+        DefaultItemHolderPos = Arms.Position;
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
-
-        InputDir = Godot.Input.GetVector("move_left", "move_right", "move_up",
-                                         "move_down");
+        // if (Input.IsActionJustPressed("ui_cancel"))
+        //     Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Captured ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        InputDir = Godot.Input.GetVector("move_left", "move_right", "move_forward",
+                                         "move_backward");
         // Handle crouch
         if (Input.IsActionJustPressed("crouch"))
         {
@@ -62,7 +63,7 @@ public partial class PlayerFpsControllerNew : CharacterBody3D
             Crouched = !Crouched;
             crouchTween = CreateTween();
             crouchTween.SetParallel(true);
-            crouchTween.TweenProperty(capsule, "height",
+            crouchTween.TweenProperty(shape, "height",
                                       Crouched ? defaultHeight / 3 : defaultHeight,
                                       0.25f);
         }
@@ -79,11 +80,11 @@ public partial class PlayerFpsControllerNew : CharacterBody3D
             vel *= new Vector3(2, 1, 2);
         Velocity = vel;
         MoveAndSlide();
-        JuiceUtils.ApplyTilt(Cam, InputDir.X, CamHolderRotationAmount, delta);
-        JuiceUtils.ApplyTilt(ItemHolder, InputDir.X, ItemHolderRotationAmount, delta);
-        JuiceUtils.ApplySway(ItemHolder, MouseInput, ItemSwayAmount, delta);
+        JuiceUtils.ApplyTilt(Head, InputDir.X, HeadRotationAmount, delta);
+        JuiceUtils.ApplyTilt(Arms, InputDir.X, ArmsRotationAmount, delta);
+        JuiceUtils.ApplySway(Arms, MouseInput, ArmsSwayAmount, delta);
         var playerMoving = Velocity.Length() > 0 && IsOnFloor();
-        JuiceUtils.ApplyBob(ItemHolder, Velocity.Length(), playerMoving, DefaultItemHolderPos, new Vector2(BobAmount, BobAmount), BobFreq, delta);
+        JuiceUtils.ApplyBob(Arms, Velocity.Length(), playerMoving, DefaultItemHolderPos, new Vector2(BobAmount, BobAmount), BobFreq, delta);
     }
 
     public override void _Input(InputEvent @event)
@@ -93,13 +94,11 @@ public partial class PlayerFpsControllerNew : CharacterBody3D
         {
             var mouseEvent = @event as InputEventMouseMotion;
             MouseInput = mouseEvent.Relative;
-            RotateY(-mouseEvent.Relative.X * MouseScale * MouseSensitivity);
-            var camXRotationAmount = -mouseEvent.Relative.Y * MouseScale;
-            var newCamRotation = Cam.Rotation;
-            var maxAngle = Mathf.DegToRad(CameraMaxAngle);
-            var newXRotation = newCamRotation.X + camXRotationAmount;
-            newCamRotation.X = Mathf.Clamp(newXRotation, -maxAngle, maxAngle);
-            Cam.Rotation = newCamRotation;
+            RotateY(Mathf.DegToRad(-mouseEvent.Relative.X * MouseSensitivity));
+            var newCamRotation = Head.Rotation;
+            var newXRotation = newCamRotation.X + Mathf.DegToRad(-mouseEvent.Relative.Y * MouseSensitivity);
+            newCamRotation.X = Mathf.Clamp(newXRotation, Mathf.DegToRad(-CameraMaxAngle), Mathf.DegToRad(CameraMaxAngle));
+            Head.Rotation = newCamRotation;
         }
     }
 
