@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class PlayerFps : CharacterBody3D
+public partial class PlayerFpsControllerNew : CharacterBody3D
 {
     [Export] public Node3D Cam { get; set; }
     [Export] Node3D ItemHolder;
