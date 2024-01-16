@@ -33,4 +33,9 @@ public static class JuiceUtils
         tempPos.X = Mathf.Lerp(tempPos.X, defaultPos.X + (isMoving ? deltaX : 0), 10 * (float)delta);
         target.Position = tempPos;
     }
+
+    public static void ApplyVelocityFovIncrease(Camera3D cam, float defaultFov, float maxFov, float velocity, float maxVelocity, float margin = 10)
+    {
+        cam.Fov = Mathf.Lerp(defaultFov, maxFov, Mathf.Clamp((velocity - margin) / maxVelocity, 0, 1));
+    }
 }
