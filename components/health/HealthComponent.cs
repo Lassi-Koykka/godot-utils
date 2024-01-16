@@ -1,5 +1,6 @@
 using Godot;
 
+[GlobalClass]
 public partial class HealthComponent : Node
 {
     // Declare member variables here. Examples:
@@ -10,7 +11,7 @@ public partial class HealthComponent : Node
     public int maxHealth { get; private set; } = 100;
 
     [Export]
-    public Timer immunityTimer {get; private set; }
+    public Timer immunityTimer { get; private set; }
 
     [Signal]
     public delegate void HealthChangedEventHandler(int amount);
@@ -22,32 +23,38 @@ public partial class HealthComponent : Node
 
     public override void _Ready()
     {
-        if(immunityTimer != null)
+        if (immunityTimer != null)
             immunityTimer.Timeout += () => Enabled = true;
     }
 
     public void UpdateHealth(int amount)
     {
 
-        if(!Enabled) {
+        if (!Enabled)
+        {
             return;
         }
 
         var newHealth = health + amount;
 
-        if(amount < 0) {
+        if (amount < 0)
+        {
             health = newHealth < 0 ? 0 : newHealth;
-            if(health <= 0) {
+            if (health <= 0)
+            {
                 EmitSignal(SignalName.Died);
             }
         }
-        else if(amount > 0) {
+        else if (amount > 0)
+        {
             health = newHealth > maxHealth ? maxHealth : newHealth;
         }
 
-        if(immunityTimer != null) {
+        if (immunityTimer != null)
+        {
             Enabled = false;
-            if(!IsDead()) {
+            if (!IsDead())
+            {
                 immunityTimer.Start();
             }
 
@@ -55,21 +62,23 @@ public partial class HealthComponent : Node
         EmitSignal(SignalName.HealthChanged, amount);
     }
 
-    public void Heal(int amount) 
+    public void Heal(int amount)
     {
         UpdateHealth(amount);
     }
 
-    public void Damage(int amount) {
+    public void Damage(int amount)
+    {
         UpdateHealth(-amount);
     }
 
-    public void HealToMax() 
+    public void HealToMax()
     {
         Heal(maxHealth);
     }
 
-    public bool IsDead() {
+    public bool IsDead()
+    {
         return health <= 0;
     }
 }

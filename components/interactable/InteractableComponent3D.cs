@@ -9,6 +9,7 @@ public enum InteractionStatus
     Success,
 }
 
+[GlobalClass]
 public partial class InteractableComponent3D : Area3D
 {
     [Signal]
