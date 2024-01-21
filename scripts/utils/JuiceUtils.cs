@@ -2,13 +2,10 @@ using Godot;
 
 public static class JuiceUtils
 {
-    public static void ApplyTilt(Node3D target, float inputX, float rotationAmount, double delta)
+    public static void ApplyTilt(Node3D target, float velX, float rotationAmount, double delta)
     {
-        if (target == null)
-            return;
-
         var tempRotation = target.Rotation;
-        tempRotation.Z = (float)Mathf.LerpAngle(target.Rotation.Z, -inputX * rotationAmount, 10 * delta);
+        tempRotation.Z = (float)Mathf.LerpAngle(target.Rotation.Z, -velX * rotationAmount, 10 * delta);
         target.Rotation = tempRotation;
     }
 
@@ -21,11 +18,8 @@ public static class JuiceUtils
         target.Rotation = tempRotation;
     }
 
-    public static void ApplyBob(Node3D target, float vel, bool isMoving, Vector3 defaultPos, Vector2 amplitude, float freq, double delta)
+    public static void ApplyBob(Node3D target, bool isMoving, Vector3 defaultPos, Vector2 amplitude, float freq, double delta)
     {
-        if (target == null)
-            return;
-
         var tempPos = target.Position;
         var deltaY = Mathf.Sin(Time.GetTicksMsec() * freq) * amplitude.Y;
         var deltaX = Mathf.Sin(Time.GetTicksMsec() * freq) * amplitude.X;
@@ -34,8 +28,9 @@ public static class JuiceUtils
         target.Position = tempPos;
     }
 
-    public static void ApplyVelocityFovIncrease(Camera3D cam, float defaultFov, float maxFov, float velocity, float maxVelocity, float margin = 10)
+    public static void ApplyVelocityFovIncrease(Camera3D cam, float defaultFov, float maxFov, float velocity, float maxVelocity, double delta, float margin = 20)
     {
-        cam.Fov = Mathf.Lerp(defaultFov, maxFov, Mathf.Clamp((velocity - margin) / maxVelocity, 0, 1));
+        var targetFov = Mathf.Lerp(defaultFov, maxFov, Mathf.Clamp((velocity - margin) / maxVelocity, 0, 1));
+        cam.Fov = Mathf.Lerp(cam.Fov, targetFov, 5 * (float)delta);
     }
 }

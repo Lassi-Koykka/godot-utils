@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dab3v7kut12qg"]
+
+[ext_resource type="Script" path="res://godot-utils/scenes/player/player_fps_controller/juice/PlayerJuiceComponent.cs" id="1_4piwc"]
+
+[node name="PlayerJuiceComponent" type="Node"]
+script = ExtResource("1_4piwc")
+ArmsSwayAmount = 0.001
